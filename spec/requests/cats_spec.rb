@@ -51,6 +51,22 @@ RSpec.describe "Cats", type: :request do
       expect(cat.enjoys).to eq('having thumbs')
       expect(cat.image).to eq('https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg')
     end
+    it 'doesnt create a cat without a name' do
+      cat_params = {
+        cat: {
+          age: 2,
+          enjoys: 'having thumbs',
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+
+      # asserting against the response code
+      expect(response).to have_http_status(422)
+      json = JSON.parse(response.body)
+      p json['name']
+      expect(json['name']).to include "can't be blank"
+    end
   end
 
   describe "PATCH /update" do
@@ -84,6 +100,34 @@ RSpec.describe "Cats", type: :request do
       expect(response).to have_http_status(200)
       # asserting against the payload
       expect(updated_cat.age).to eq 3
+    end
+    it 'doesnt update a cat without a name' do
+      cat_params = {
+        cat: {
+          name: 'Toast',
+          age: 2,
+          enjoys: 'having thumbs',
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+      cat = Cat.first
+      updated_cat_params = {
+        cat: {
+          name: nil,
+          age: 3,
+          enjoys: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      patch "/cats/#{cat.id}", params: updated_cat_params
+      updated_cat = Cat.find(cat.id)
+
+      # asserting against the response code
+      expect(response).to have_http_status(422)
+      json = JSON.parse(response.body)
+      p 'update without a name'
+      p json['name']
+      expect(json['name']).to include "can't be blank"
     end
   end
 
