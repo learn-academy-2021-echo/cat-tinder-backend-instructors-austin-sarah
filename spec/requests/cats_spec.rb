@@ -54,6 +54,7 @@ RSpec.describe "Cats", type: :request do
     it 'doesnt create a cat without a name' do
       cat_params = {
         cat: {
+          
           age: 2,
           enjoys: 'having thumbs',
           image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
@@ -66,6 +67,71 @@ RSpec.describe "Cats", type: :request do
       json = JSON.parse(response.body)
       p json['name']
       expect(json['name']).to include "can't be blank"
+    end
+    it 'doesnt create a cat without an image' do
+      cat_params = {
+        cat: {
+          name: 'Toast',
+          age: 2,
+          enjoys: 'having thumbs'
+        }
+      }
+      post '/cats', params: cat_params
+
+      # asserting against the response code
+      expect(response).to have_http_status(422)
+      json = JSON.parse(response.body)
+      p json['image']
+      expect(json['image']).to include "can't be blank"
+    end
+    it 'doesnt create a cat without a age' do
+      cat_params = {
+        cat: {
+          name: 'Toast',
+          enjoys: 'having thumbs',
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+
+      # asserting against the response code
+      expect(response).to have_http_status(422)
+      json = JSON.parse(response.body)
+      p json['age']
+      expect(json['age']).to include "can't be blank"
+    end
+    it 'doesnt create a cat without an enjoys' do
+      cat_params = {
+        cat: {
+          name: 'Toast',
+          age: 2,
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+
+      # asserting against the response code
+      expect(response).to have_http_status(422)
+      json = JSON.parse(response.body)
+      p json['enjoys']
+      expect(json['enjoys']).to include "can't be blank"
+    end
+    it 'doesnt create a cat without enjoys being at least 10 characters' do
+      cat_params = {
+        cat: {
+          name: 'Toast',
+          age: 2,
+          enjoys: '1234',
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+
+      # asserting against the response code
+      expect(response).to have_http_status(422)
+      json = JSON.parse(response.body)
+      p json['enjoys']
+      expect(json['enjoys']).to include "is too short (minimum is 10 characters)"
     end
   end
 
@@ -88,7 +154,7 @@ RSpec.describe "Cats", type: :request do
         cat: {
           name: 'Toasty',
           age: 3,
-          enjoys: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+          enjoys: 'having thumbs'
         }
       }
       patch "/cats/#{cat.id}", params: updated_cat_params
@@ -116,7 +182,7 @@ RSpec.describe "Cats", type: :request do
         cat: {
           name: nil,
           age: 3,
-          enjoys: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+          enjoys: 'having thumbs'
         }
       }
       patch "/cats/#{cat.id}", params: updated_cat_params
@@ -129,6 +195,64 @@ RSpec.describe "Cats", type: :request do
       p json['name']
       expect(json['name']).to include "can't be blank"
     end
+    it 'doesnt update a cat without an age' do
+      cat_params = {
+        cat: {
+          name: 'Toast',
+          age: 2,
+          enjoys: 'having thumbs',
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+      cat = Cat.first
+      updated_cat_params = {
+        cat: {
+          name: 'Toast',
+          age: nil,
+          enjoys: 'having thumbs',
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      patch "/cats/#{cat.id}", params: updated_cat_params
+      updated_cat = Cat.find(cat.id)
+
+      # asserting against the response code
+      expect(response).to have_http_status(422)
+      json = JSON.parse(response.body)
+      p 'update without a name'
+      p json['age']
+      expect(json['age']).to include "can't be blank"
+    end
+    it 'doesnt update a cat without an enjoys' do
+      cat_params = {
+        cat: {
+          name: 'Toast',
+          age: 2,
+          enjoys: 'having thumbs',
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      post '/cats', params: cat_params
+      cat = Cat.first
+      updated_cat_params = {
+        cat: {
+          name: 'Toast',
+          age: 2,
+          enjoys: nil,
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+        }
+      }
+      patch "/cats/#{cat.id}", params: updated_cat_params
+      updated_cat = Cat.find(cat.id)
+
+      # asserting against the response code
+      expect(response).to have_http_status(422)
+      json = JSON.parse(response.body)
+      p 'update without a enjoys'
+      p json['enjoys']
+      expect(json['enjoys']).to include "can't be blank"
+    end
   end
 
   describe "DELETE /destroy" do
@@ -138,7 +262,9 @@ RSpec.describe "Cats", type: :request do
         cat: {
           name: 'Felix',
           age: 4,
-          enjoys: 'Walks in the park.'
+          enjoys: 'Walks in the park.',
+          image: 'https://static01.nyt.com/images/2019/07/21/arts/23lionking1/merlin_154880472_6647f53b-1be2-43cd-87e0-ce26ebf1d4ed-superJumbo.jpg'
+
         }
       }
       post '/cats', params: cat_params
