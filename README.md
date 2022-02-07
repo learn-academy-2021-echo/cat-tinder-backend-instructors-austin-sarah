@@ -12,3 +12,5 @@ $ rails generate resource Cat name:string age:integer enjoys:text image:text
 $ rails db:migrate
 $ rspec spec
 ```
+
+
